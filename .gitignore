@@ -1,0 +1,15 @@
+.DS_Store
+!.gitignore
+./.htaccess
+.idea
+/vendor/
+composer.lock
+composer.phar
+/sftp-config.json
+phpdoc-cache-*
+patient-app/www/.sass-cache
+enrollment/.sass-cache
+.vscode/
+package-lock.json
+yarn-error.log
+yarn.lock

@@ -1,0 +1,26 @@
+{
+  "name": "entermotion/eurl",
+  "description": "This package aims to deliver a good set of functions to easily escape URLs that will be used on HTML",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Gabriel Felipe",
+      "email": "email@gabrielfelipe.com"
+    }
+  ],
+  "require": {
+    "php": "7.*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "7.*"
+  },
+  "autoload": {
+    "psr-0": {
+      "eURL": "src/"
+    },
+    "files": [
+      "src/eURL.php"
+    ]
+  }
+}
