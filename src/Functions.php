@@ -2,10 +2,13 @@
 
 namespace eURL\Functions;
 
-function e(string $url, array $allowedSchemes = ['http', 'https']): string
+function e(string $url, array $allowedSchemes = ['http', 'https'], bool $autocompleteScheme=true): string
 {
 
-  $parsedUrl = parse_url($url);
+  $parsedUrl = parse_url(trim($url));
+  if($parsedUrl === false){
+    return "";
+  }
 
   $parsedUrl['path'] = (isset($parsedUrl['path'])) ? encode($parsedUrl['path']) : "";
   $parsedUrl['host'] = (isset($parsedUrl['host'])) ? encode($parsedUrl['host']) : "";
@@ -17,7 +20,6 @@ function e(string $url, array $allowedSchemes = ['http', 'https']): string
 
   $params = [];
   $queryHasTrailingEqual = false;
-
   if (isset($parsedUrl['query'])) {
     $queryHasTrailingEqual = substr($parsedUrl['query'], -1) === "=";
     parse_str($parsedUrl['query'], $params);
@@ -39,16 +41,17 @@ function e(string $url, array $allowedSchemes = ['http', 'https']): string
     $parsedUrl['query'] = $query;
   }
 
-  $url = build($parsedUrl);
+  $defaultScheme = ($autocompleteScheme) ? "http://" : "";
+  $url = build($parsedUrl, $defaultScheme);
   if (!filter_var($url, FILTER_VALIDATE_URL)) {
     return '';
   }
   return $url;
 }
 
-function build(array $parsedUrl): string
+function build(array $parsedUrl, $defaultScheme="http://"): string
 {
-  $scheme = ($parsedUrl['scheme'] ?? '') ? $parsedUrl['scheme'] . '://' : 'http://';
+  $scheme = ($parsedUrl['scheme'] ?? '') ? $parsedUrl['scheme'] . '://' : $defaultScheme;
   $host = $parsedUrl['host'] ?? '';
   $query = (!empty($parsedUrl['query'])) ? "?" . $parsedUrl['query'] : "";
   $fragment = (!empty($parsedUrl['fragment'])) ? "#" . $parsedUrl['fragment'] : "";
@@ -57,7 +60,6 @@ function build(array $parsedUrl): string
 
 function encode(string $str): string
 {
-
   $replacements = array('!', '*', "(", ")", ";", "@", "&", "=", "+", "$", ",", "/", "?", "%", "#", "[", "]");
   $entities = array_map("urlencode", $replacements);
   return str_replace($entities, $replacements, urlencode($str));

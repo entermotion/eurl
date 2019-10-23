@@ -184,12 +184,20 @@ final class ValidUrls extends TestCase
         "expectedResult" => ""//Shouldn't accept javascript scheme
       ],
       [
+        "toTest" => " javascript://alert(1)",
+        "expectedResult" => ""//Shouldn't accept javascript scheme
+      ],
+      [
         "toTest" => "http://google.com?q1=\"<script>alert(1)</script>",
         "expectedResult" => "http://google.com?q1=".url\encode("\"<script>alert(1)</script>"), //Should escape the query string
       ],
       [
         "toTest" => "http://google.com/\"<script>alert(1)</script>/?q1",
         "expectedResult" => "http://google.com/".url\encode("\"<script>alert(1)</script>")."/?q1",
+      ],
+      [
+        "toTest" => "http://google.com/#\"<script>alert(1)</script>/?q1",
+        "expectedResult" => "http://google.com/#".url\encode("\"<script>alert(1)</script>")."/?q1",
       ],
     ];
 
