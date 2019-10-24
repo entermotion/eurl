@@ -2,7 +2,7 @@
 
 namespace eURL\Functions;
 
-function e(string $url, bool $autocompleteScheme = true, array $allowedSchemes = ['http', 'https']): string
+function e(string $url, string $defaultScheme = "http://", array $allowedSchemes = ['http', 'https']): string
 {
 
   $parsedUrl = parse_url(trim($url));
@@ -41,21 +41,25 @@ function e(string $url, bool $autocompleteScheme = true, array $allowedSchemes =
     $parsedUrl['query'] = $query;
   }
 
-  $defaultScheme = ($autocompleteScheme) ? "http://" : "";
   $url = build($parsedUrl, $defaultScheme);
-  if ($autocompleteScheme && !filter_var($url, FILTER_VALIDATE_URL)) {
-    return '';
-  }
   return $url;
 }
 
 function build(array $parsedUrl, $defaultScheme = "http://"): string
 {
-  $scheme = ($parsedUrl['scheme'] ?? '') ? $parsedUrl['scheme'] . '://' : $defaultScheme;
   $host = $parsedUrl['host'] ?? '';
+  $scheme = (!empty($parsedUrl['scheme'])) ? $parsedUrl['scheme'] . '://' : "";
+  $path = $parsedUrl['path'];
+  if(!$scheme && !$host && $defaultScheme) {
+    //check if the first part of the path looks like a domain, if so we set the missing scheme to the default one.
+    $possibleDomain = explode("/",$path)[0];
+    if(preg_match('/^(([-A-z0-9]+)\.)?(([-A-z0-9]+)\.)?([-A-z0-9]+)\.([-A-z]{2,4})$/',$possibleDomain)){
+      $scheme = $defaultScheme;
+    }
+  }
   $query = (!empty($parsedUrl['query'])) ? "?" . $parsedUrl['query'] : "";
   $fragment = (!empty($parsedUrl['fragment'])) ? "#" . $parsedUrl['fragment'] : "";
-  return $scheme . $host . $parsedUrl['path'] . $query . $fragment;
+  return $scheme . $host . $path . $query . $fragment;
 }
 
 function encode(string $str): string

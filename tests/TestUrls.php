@@ -54,6 +54,16 @@ final class ValidUrls extends TestCase
       "google.com/#fragment",
       "google.com?q1=v1&q2v2",
       "google.com/?q1=v1&q2v2=#fragment",
+      "subdomain.google.com",
+      "subdomain.google.com#fragment",
+      "subdomain.google.com/#fragment",
+      "subdomain.google.com?q1=v1&q2v2",
+      "subdomain.google.com/?q1=v1&q2v2=#fragment",
+      "subdomain.subdomain.google.com",
+      "subdomain.subdomain.google.com#fragment",
+      "subdomain.subdomain.google.com/#fragment",
+      "subdomain.subdomain.google.com?q1=v1&q2v2",
+      "subdomain.subdomain.google.com/?q1=v1&q2v2=#fragment",
     ];
 
     $failures = [];
@@ -237,11 +247,17 @@ final class ValidUrls extends TestCase
       "/relative/?q1=v1&q2v2=#fragment",
       "/relative?q1=v1&q2v2#fragment",
       "/relative/?q1=v1&q2v2#fragment",
+      "relative",
+      "relative/test/",
+      "relative#fragment",
+      "relative/#fragment",
+      "relative?q1=v1&q2v2",
+      "relative?q1=v1&q2v2=",
     ];
     $failures = [];
     foreach ($urls as $url) {
       try {
-        $this->assertEquals($url, url\e($url, false), "Failed at url $url");
+        $this->assertEquals($url, url\e($url), "Failed at url $url");
       } catch (\Exception $e) {
         $failures[] = $url . " !== " . url\e($url);
       }
@@ -283,8 +299,8 @@ final class ValidUrls extends TestCase
       try {
         $this->assertEquals(
           $url['expectedResult'],
-          url\e($url['toTest'], false),
-          "Failed at url " . $url['toTest'] . " result: " . url\e($url['toTest'], false) . " expected: " . $url['expectedResult']
+          url\e($url['toTest'] ),
+          "Failed at url " . $url['toTest'] . " result: " . url\e($url['toTest']) . " expected: " . $url['expectedResult']
         );
       } catch (\Exception $e) {
         $failures[] = $e->getMessage();
