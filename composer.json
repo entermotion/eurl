@@ -20,7 +20,7 @@
       "eURL": "src/"
     },
     "files": [
-      "src/eURL.php"
+      "src/Functions.php"
     ]
   }
 }

@@ -2,11 +2,11 @@
 
 namespace eURL\Functions;
 
-function e(string $url, array $allowedSchemes = ['http', 'https'], bool $autocompleteScheme=true): string
+function e(string $url, bool $autocompleteScheme = true, array $allowedSchemes = ['http', 'https']): string
 {
 
   $parsedUrl = parse_url(trim($url));
-  if($parsedUrl === false){
+  if ($parsedUrl === false) {
     return "";
   }
 
@@ -43,13 +43,13 @@ function e(string $url, array $allowedSchemes = ['http', 'https'], bool $autocom
 
   $defaultScheme = ($autocompleteScheme) ? "http://" : "";
   $url = build($parsedUrl, $defaultScheme);
-  if (!filter_var($url, FILTER_VALIDATE_URL)) {
+  if ($autocompleteScheme && !filter_var($url, FILTER_VALIDATE_URL)) {
     return '';
   }
   return $url;
 }
 
-function build(array $parsedUrl, $defaultScheme="http://"): string
+function build(array $parsedUrl, $defaultScheme = "http://"): string
 {
   $scheme = ($parsedUrl['scheme'] ?? '') ? $parsedUrl['scheme'] . '://' : $defaultScheme;
   $host = $parsedUrl['host'] ?? '';

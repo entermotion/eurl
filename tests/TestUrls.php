@@ -219,4 +219,81 @@ final class ValidUrls extends TestCase
       );
     }
   }
+
+  public function testRelativeUrls(): void
+  {
+    $urls = [
+      "/relative",
+      "/relative/test/",
+      "/relative#fragment",
+      "/relative/#fragment",
+      "/relative?q1=v1&q2v2",
+      "/relative?q1=v1&q2v2=",
+      "/relative/?q1=v1&q2v2",
+      "/relative/?q1=v1&q2v2=",
+      "/relative/page#fragment",
+      "/relative/page/#fragment",
+      "/relative?q1=v1&q2v2=#fragment",
+      "/relative/?q1=v1&q2v2=#fragment",
+      "/relative?q1=v1&q2v2#fragment",
+      "/relative/?q1=v1&q2v2#fragment",
+    ];
+    $failures = [];
+    foreach ($urls as $url) {
+      try {
+        $this->assertEquals($url, url\e($url, false), "Failed at url $url");
+      } catch (\Exception $e) {
+        $failures[] = $url . " !== " . url\e($url);
+      }
+    }
+    if (!empty($failures)) {
+      throw new AssertionFailedError (
+        count($failures) . " assertions failed:\n\t" . implode("\n\t", $failures)
+      );
+    }
+  }
+
+  public function testRelativeUrlsEncoding(): void
+  {
+    $urls = [
+      [
+        "toTest" => "/relative?v1=1<2",
+        "expectedResult" => "/relative?v1=1%3C2"
+      ],
+      [
+        "toTest" => "/relative?1<2=v1",
+        "expectedResult" => "/relative?1%3C2=v1"
+      ],
+      [
+        "toTest" => "http://goo>:gle.com?v1=12",
+        "expectedResult" => "" //Those chars at the domain level makes the url invalid, therefore the result should be empty.
+      ],
+      [
+        "toTest" => "/relative/1<2/?te=12&b=",
+        "expectedResult" => "/relative/1%3C2/?te=12&b="
+      ],
+      [
+        "toTest" => "/relative/1<2/?te=12&b=",
+        "expectedResult" => "/relative/1%3C2/?te=12&b="
+      ]
+    ];
+
+    $failures = [];
+    foreach ($urls as $url) {
+      try {
+        $this->assertEquals(
+          $url['expectedResult'],
+          url\e($url['toTest'], false),
+          "Failed at url " . $url['toTest'] . " result: " . url\e($url['toTest'], false) . " expected: " . $url['expectedResult']
+        );
+      } catch (\Exception $e) {
+        $failures[] = $e->getMessage();
+      }
+    }
+    if (!empty($failures)) {
+      throw new AssertionFailedError (
+        count($failures) . " assertions failed:\n\t" . implode("\n\t", $failures)
+      );
+    }
+  }
 }
