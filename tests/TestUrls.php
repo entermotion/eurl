@@ -3,14 +3,13 @@
 use PHPUnit\Framework\TestCase;
 use eURL\Functions as url;
 
-require(__DIR__ . "/../vendor/autoload.php");
-
 final class ValidUrls extends TestCase
 {
     /**
      * @dataProvider validUrlProvider
      */
-	public function testValidUrl($url) {
+	public function testValidUrl($url): void
+	{
 
 		$this->assertSame($url, url\e($url));
 
@@ -19,7 +18,8 @@ final class ValidUrls extends TestCase
     /**
      * @dataProvider invalidUrlProvider
      */
-	public function testInvalidUrl($url, $expected) {
+	public function testInvalidUrl($url, $expected): void
+	{
 
 		$this->assertSame($expected, url\e($url));
 
@@ -28,7 +28,7 @@ final class ValidUrls extends TestCase
 	/**
      * @codeCoverageIgnore
      */
-    public function validUrlProvider()
+    public function validUrlProvider(): array
     {
         return [
 
@@ -64,6 +64,28 @@ final class ValidUrls extends TestCase
 			["http://google.com?v1=1%3C2"],
 			["http://google.com?1%3C2=v1"],
 			["http://google.com/1%3C2/?te=12&b="],
+
+			// relative
+			['/relative'],
+			['/relative/test/'],
+			['/relative#fragment'],
+			['/relative/#fragment'],
+			['/relative?q1=v1&q2v2'],
+			['/relative?q1=v1&q2v2='],
+			['/relative/?q1=v1&q2v2'],
+			['/relative/?q1=v1&q2v2='],
+			['/relative/page#fragment'],
+			['/relative/page/#fragment'],
+			['/relative?q1=v1&q2v2=#fragment'],
+			['/relative/?q1=v1&q2v2=#fragment'],
+			['/relative?q1=v1&q2v2#fragment'],
+			['/relative/?q1=v1&q2v2#fragment'],
+			['relative'],
+			['relative/test/'],
+			['relative#fragment'],
+			['relative/#fragment'],
+			['relative?q1=v1&q2v2'],
+			['relative?q1=v1&q2v2='],
 			
 		];
 	}
@@ -71,7 +93,7 @@ final class ValidUrls extends TestCase
 	/**
      * @codeCoverageIgnore
      */
-    public function invalidUrlProvider()
+    public function invalidUrlProvider(): array
     {
 		return [
 
@@ -98,6 +120,13 @@ final class ValidUrls extends TestCase
 			['subdomain.subdomain.google.com?q1=v1&q2v2', 'http://subdomain.subdomain.google.com?q1=v1&q2v2'],
 			['subdomain.subdomain.google.com/?q1=v1&q2v2=#fragment', 'http://subdomain.subdomain.google.com/?q1=v1&q2v2=#fragment'],
 
+			// relative enconding
+			["/relative?v1=1<2", "/relative?v1=1%3C2"],
+			["/relative?1<2=v1", "/relative?1%3C2=v1"],
+			["http://goo>:gle.com?v1=12", ""], //Those chars at the domain level makes the url invalid, therefore the result should be empty.
+			["/relative/1<2/?te=12&b=", "/relative/1%3C2/?te=12&b="],
+			["/relative/1<2/?te=12&b=", "/relative/1%3C2/?te=12&b="],
+
 
 			// XSS
 
@@ -117,88 +146,4 @@ final class ValidUrls extends TestCase
 
 		];
 	}
-
-	/*
-	public function testRelativeUrls(): void
-	{
-	$urls = [
-		"/relative",
-		"/relative/test/",
-		"/relative#fragment",
-		"/relative/#fragment",
-		"/relative?q1=v1&q2v2",
-		"/relative?q1=v1&q2v2=",
-		"/relative/?q1=v1&q2v2",
-		"/relative/?q1=v1&q2v2=",
-		"/relative/page#fragment",
-		"/relative/page/#fragment",
-		"/relative?q1=v1&q2v2=#fragment",
-		"/relative/?q1=v1&q2v2=#fragment",
-		"/relative?q1=v1&q2v2#fragment",
-		"/relative/?q1=v1&q2v2#fragment",
-		"relative",
-		"relative/test/",
-		"relative#fragment",
-		"relative/#fragment",
-		"relative?q1=v1&q2v2",
-		"relative?q1=v1&q2v2=",
-	];
-	$failures = [];
-	foreach ($urls as $url) {
-		try {
-		$this->assertEquals($url, url\e($url), "Failed at url $url");
-		} catch (\Exception $e) {
-		$failures[] = $url . " !== " . url\e($url);
-		}
-	}
-	if (!empty($failures)) {
-		throw new AssertionFailedError (
-		count($failures) . " assertions failed:\n\t" . implode("\n\t", $failures)
-		);
-	}
-	}
-
-	public function testRelativeUrlsEncoding(): void
-	{
-	$urls = [
-		[
-		"toTest" => "/relative?v1=1<2",
-		"expectedResult" => "/relative?v1=1%3C2"
-		],
-		[
-		"toTest" => "/relative?1<2=v1",
-		"expectedResult" => "/relative?1%3C2=v1"
-		],
-		[
-		"toTest" => "http://goo>:gle.com?v1=12",
-		"expectedResult" => "" //Those chars at the domain level makes the url invalid, therefore the result should be empty.
-		],
-		[
-		"toTest" => "/relative/1<2/?te=12&b=",
-		"expectedResult" => "/relative/1%3C2/?te=12&b="
-		],
-		[
-		"toTest" => "/relative/1<2/?te=12&b=",
-		"expectedResult" => "/relative/1%3C2/?te=12&b="
-		]
-	];
-
-	$failures = [];
-	foreach ($urls as $url) {
-		try {
-		$this->assertEquals(
-			$url['expectedResult'],
-			url\e($url['htoTest'] ),
-			"Failed at url " . $url['htoTest'] . " result: " . url\e($url['htoTest']) . " expected: " . $url['expectedResult']
-		);
-		} catch (\Exception $e) {
-		$failures[] = $e->getMessage();
-		}
-	}
-	if (!empty($failures)) {
-		throw new AssertionFailedError (
-		count($failures) . " assertions failed:\n\t" . implode("\n\t", $failures)
-		);
-	}
-	*/
 }
