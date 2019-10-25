@@ -10,9 +10,7 @@ final class ValidUrls extends TestCase
      */
 	public function testValidUrl($url): void
 	{
-
 		$this->assertSame($url, url\e($url));
-
 	}
 
     /**
@@ -20,9 +18,7 @@ final class ValidUrls extends TestCase
      */
 	public function testInvalidUrl($url, $expected): void
 	{
-
 		$this->assertSame($expected, url\e($url));
-
 	}
 
 	/**
