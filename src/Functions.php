@@ -2,69 +2,97 @@
 
 namespace eURL\Functions;
 
-function e(string $url, string $defaultScheme = "http://", array $allowedSchemes = ['http', 'https']): string
+function e(string $url, string $defaultScheme = 'http://', array $allowedSchemes = ['http', 'https']): string
 {
+	$parsedUrl = parse_url(trim($url));
 
-  $parsedUrl = parse_url(trim($url));
-  if ($parsedUrl === false) {
-    return "";
-  }
+	if ($parsedUrl === false) return '';
 
-  $parsedUrl['path'] = (isset($parsedUrl['path'])) ? encode($parsedUrl['path']) : "";
-  $parsedUrl['host'] = (isset($parsedUrl['host'])) ? encode($parsedUrl['host']) : "";
-  $parsedUrl['fragment'] = (isset($parsedUrl['fragment'])) ? encode($parsedUrl['fragment']) : "";
-  $parsedUrl['scheme'] = (isset($parsedUrl['scheme'])) ? encode($parsedUrl['scheme']) : "";
-  if ($parsedUrl['scheme'] && !in_array($parsedUrl['scheme'], $allowedSchemes)) {
-    return '';
-  }
+	$parsedUrlSkeleton = array(
+		'scheme'   => '',
+		'host'     => '',
+		'path'     => '',
+		'query'    => '',
+		'fragment' => '',
+	);
 
-  $params = [];
-  $queryHasTrailingEqual = false;
-  if (isset($parsedUrl['query'])) {
-    $queryHasTrailingEqual = substr($parsedUrl['query'], -1) === "=";
-    parse_str($parsedUrl['query'], $params);
-  }
-  $query = "";
+	$parsedUrl = array_merge($parsedUrlSkeleton, $parsedUrl);
 
-  if ($params) {
-    $query = [];
-    foreach ($params as $key => $value) {
-      $query[] = encode($key) . "=" . encode($value);
-    }
-    $query = implode("&", $query);
-    if (!$queryHasTrailingEqual) {
-      $query = rtrim($query, "=");
-    }
-  }
+	$parsedUrl['scheme']   = encode($parsedUrl['scheme']);
+	$parsedUrl['host']     = encode($parsedUrl['host']);
+	$parsedUrl['path']     = encode($parsedUrl['path']);
+	$parsedUrl['fragment'] = encode($parsedUrl['fragment']);
 
-  if ($query) {
-    $parsedUrl['query'] = $query;
-  }
+	if ($parsedUrl['scheme'] !== '' && !in_array($parsedUrl['scheme'], $allowedSchemes)) return '';
 
-  $url = build($parsedUrl, $defaultScheme);
-  return $url;
+	$params = array();
+	$queryHasTrailingEqual = false;
+
+	if ($parsedUrl['query'] !== '') {
+
+		$queryHasTrailingEqual = substr($parsedUrl['query'], -1) === '=';
+		
+		parse_str($parsedUrl['query'], $params);
+
+	}
+	
+	$parsedUrl['query'] = parseQuery($params, $queryHasTrailingEqual);
+
+	return build($parsedUrl, $defaultScheme);
 }
 
-function build(array $parsedUrl, $defaultScheme = "http://"): string
+function parseQuery(array $params, bool $queryHasTrailingEqual): string
 {
-  $host = $parsedUrl['host'] ?? '';
-  $scheme = (!empty($parsedUrl['scheme'])) ? $parsedUrl['scheme'] . '://' : "";
-  $path = $parsedUrl['path'];
-  if(!$scheme && !$host && $defaultScheme) {
-    //check if the first part of the path looks like a domain, if so we set the missing scheme to the default one.
-    $possibleDomain = explode("/",$path)[0];
-    if(preg_match('/^(([-A-z0-9]+)\.)?(([-A-z0-9]+)\.)?([-A-z0-9]+)\.([-A-z]{2,4})$/',$possibleDomain)){
-      $scheme = $defaultScheme;
-    }
-  }
-  $query = (!empty($parsedUrl['query'])) ? "?" . $parsedUrl['query'] : "";
-  $fragment = (!empty($parsedUrl['fragment'])) ? "#" . $parsedUrl['fragment'] : "";
-  return $scheme . $host . $path . $query . $fragment;
+	if (count($params) > 0) {
+
+		$query = array();
+
+		foreach ($params as $key => $value) {
+
+			$query[] = encode($key) . '=' . encode($value);
+
+		}
+
+		$query = implode('&', $query);
+
+		if ($queryHasTrailingEqual === false) $query = rtrim($query, '=');
+
+		return $query;
+
+	}
+
+	return '';
+}
+
+function build(array $url, $defaultScheme = 'http://'): string
+{
+	$query    = ($url['query']     !== '') ? '?' . $url['query']    : '';
+	$fragment = ($url['fragment']  !== '') ? '#' . $url['fragment'] : '';
+
+	$result = $url['host'] . $url['path'] . $query . $fragment;
+
+	if ($url['scheme'] === '' && $url['host'] === '') {
+
+		//check if the first part of the path looks like a domain, if so we set the missing scheme to the default one.
+		$possibleDomain = explode('/', $url['path'], 2)[0];
+
+		if (preg_match('/^(([-A-z0-9]+)\.)?(([-A-z0-9]+)\.)?([-A-z0-9]+)\.([-A-z]{2,4})$/', $possibleDomain)) {
+			
+			return $defaultScheme . $result;
+
+		}
+
+	}
+
+	if ($url['scheme'] !== '') $url['scheme'] .= '://';
+
+	return $url['scheme'] . $result;
 }
 
 function encode(string $str): string
 {
-  $replacements = array('!', '*', "(", ")", ";", "@", "&", "=", "+", "$", ",", "/", "?", "%", "#", "[", "]");
-  $entities = array_map("urlencode", $replacements);
-  return str_replace($entities, $replacements, urlencode($str));
+	$replacements = array('!', '*', '(', ')', ';', '@', '&', '=', '+', '$', ',', '/', '?', '%', '#', '[', ']');
+	$entities = array_map('urlencode', $replacements);
+
+	return str_ireplace($entities, $replacements, urlencode($str));
 }
