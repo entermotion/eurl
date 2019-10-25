@@ -7,27 +7,32 @@ require(__DIR__ . "/../vendor/autoload.php");
 
 final class ValidUrls extends TestCase
 {
-	public function urlValidTest($url) {
+    /**
+     * @dataProvider validUrlProvider
+     */
+	public function testValidUrl($url) {
 
 		$this->assertSame($url, url\e($url));
 
 	}
 
     /**
-     * @dataProvider urlProvider
+     * @dataProvider invalidUrlProvider
      */
-	public function testValidSimpleUrls($url) {
+	public function testInvalidUrl($url, $expected) {
 
-		$this->urlValidTest($url);
+		$this->assertSame($expected, url\e($url));
 
 	}
 
 	/**
      * @codeCoverageIgnore
      */
-    public function urlProvider()
+    public function validUrlProvider()
     {
         return [
+
+			// simple urls
 			['http://google.com'],
 			['http://google.com#fragment'],
 			['http://google.com/#fragment'],
@@ -46,162 +51,70 @@ final class ValidUrls extends TestCase
 			['http://google.com/?q1=v1&q2v2=#fragment'],
 			['http://google.com?q1=v1&q2v2#fragment'],
 			['http://google.com/?q1=v1&q2v2#fragment'],
-		];
-	}
-
-    /**
-     * @dataProvider urlSchemeProvider
-     */
-	public function testValidSchemeUrls($url) {
-
-		$this->urlValidTest($url);
-
-	}
-
-	/**
-     * @codeCoverageIgnore
-     */
-    public function urlSchemeProvider()
-    {
-		return [
-			['google.com'],
-			['google.com#fragment'],
-			['google.com/#fragment'],
-			['google.com?q1=v1&q2v2'],
-			['google.com/?q1=v1&q2v2=#fragment'],
-			['subdomain.google.com'],
-			['subdomain.google.com#fragment'],
-			['subdomain.google.com/#fragment'],
-			['subdomain.google.com?q1=v1&q2v2'],
-			['subdomain.google.com/?q1=v1&q2v2=#fragment'],
-			['subdomain.subdomain.google.com'],
-			['subdomain.subdomain.google.com#fragment'],
-			['subdomain.subdomain.google.com/#fragment'],
-			['subdomain.subdomain.google.com?q1=v1&q2v2'],
-			['subdomain.subdomain.google.com/?q1=v1&q2v2=#fragment'],
-		];
-	}
-
-    /**
-     * @dataProvider copyAndPastedUrlsProvider
-     */
-	public function testCopyAndPastedUrlsTest($url) {
-
-		$this->urlValidTest($url);
-
-	}
-
-	/**
-     * @codeCoverageIgnore
-     */
-    public function copyAndPastedUrlsProvider()
-    {
-		return [
+			
+			// copy and pasted
 			['https://stackoverflow.com/questions/2681786/how-to-get-the-last-char-of-a-string-in-php'],
 			['https://www.google.com/search?sxsrf=ACYBGNTJ6_E7vGHuXly-wapQEdX0-WR2eg%3A1571805081701&source=hp&ei=mdevXdCQKL685OUPwY-SqAs&q=test&btnK=Pesquisa+Google&oq=mail+url&gs_l=psy-ab.3..0i203l4j0i22i30l6.48741.49673..50184...0.0..0.98.570.8......0....1..gws-wiz.......35i39j0j0i67j0i10i203.wUQYlQVEwxU&ved=0ahUKEwiQwbGcxrHlAhU-HrkGHcGHBLUQ4dUDCAY&uact=5'],
 			['https://www.google.com/search?q=test&sxsrf=ACYBGNSqRqbaCthrNVueRbiXQlYaA64AxQ1571808636488&source=lnms&tbm=isch&sa=X&ved=0ahUKEwjo6Lq707HlAhUfGbkGHaM1AacQ_AUIEigB&biw=1920&bih=878#imgrc=fZg5jDE2xDewFM'],
 			['https://www.google.com/aclk?sa=L&ai=DChcSEwjA4ZLf07HlAhXECZEKHV5YAOMYABAAGgJjZQ&sig=AOD64_33mdKrF1qaxefqngRdnf_JGHc7Cw&q=&ved=2ahUKEwijgI3f07HlAhWKIbkGHdhuDsUQ0Qx6BAgNEAE&adurl='],
 			['https://www.facebook.com/photo.php?fbid=2272467782784102&set=a.378834528814113&type=3&theater'],
 			['https://www.google.com/search?sxsrf=ACYBGNTJ6_E7vGHuXly-wapQEdX0-WR2eg%3A1571805081701&source=hp&ei=mdevXdCQKL685OUPwY-SqAs&q=t%C3%A9ste+busca+com+acento&btnK=Pesquisa+Google&oq=mail+url&gs_l=psy-ab.3..0i203l4j0i22i30l6.48741.49673..50184...0.0..0.98.570.8......0....1..gws-wiz.......35i39j0j0i67j0i10i203.wUQYlQVEwxU&ved=0ahUKEwiQwbGcxrHlAhU-HrkGHcGHBLUQ4dUDCAY&uact=5'],
-		];
-	}
-
-    /**
-     * @dataProvider urlEncodingProvider
-     */
-	public function testUrlEncoding($url, $expected) {
-
-		$this->assertSame($expected, url\e($url));
-
-	}
-
-	/**
-     * @codeCoverageIgnore
-     */
-    public function urlEncodingProvider()
-    {
-		return [
-
-			["http://google.com?v1=1<2", "http://google.com?v1=1%3C2"],
-			["http://google.com?1<2=v1", "http://google.com?1%3C2=v1"],
-
-			//Those chars at the domain level makes the url invalid, therefore the result should be empty.
-			["http://goo>:gle.com?v1=12", ""],
-
-			["http://google.com/1<2/?te=12&b=", "http://google.com/1%3C2/?te=12&b="],
-			["http://google.com/1<2/?te=12&b=", "http://google.com/1%3C2/?te=12&b="],
-
-		];
-	}
-
-    /**
-     * @dataProvider urlDoubleEncodingProvider
-     */
-	public function testUrlDoubleEncoding($url) {
-
-		$this->urlValidTest($url);
-
-	}
-
-	/**
-     * @codeCoverageIgnore
-     */
-    public function urlDoubleEncodingProvider()
-    {
-		return [
+		
+			// double enconding
 			["http://google.com?v1=1%3C2"],
 			["http://google.com?1%3C2=v1"],
 			["http://google.com/1%3C2/?te=12&b="],
+			
 		];
-	}
-
-    /**
-     * @dataProvider xssAttemptsProvider
-     */
-	public function testXssAttempts($url, $expected) {
-
-		$this->assertSame($expected, url\e($url));
-
 	}
 
 	/**
      * @codeCoverageIgnore
      */
-    public function xssAttemptsProvider()
+    public function invalidUrlProvider()
     {
 		return [
-			[
-				'http://example.com/"><script>alert("xss")</script>',
-				'http://example.com/%22%3E%3Cscript%3Ealert(%22xss%22)%3C/script%3E' //Should escape the path
-			],
-			[
-				"http://example.com/'><script>alert('xss')</script>",
-				"http://example.com/%27%3E%3Cscript%3Ealert(%27xss%27)%3C/script%3E" //Should escape the path
-			],
-			[
-				"javascript://test%0Aalert(321)",
-				'' //Shouldn't accept javascript scheme
-			],
-			[
-				"javascript://alert(1)",
-				'' //Shouldn't accept javascript scheme
-			],
-			[
-				" javascript://alert(1)",
-				'' //Shouldn't accept javascript scheme
-			],
-			[
-				"http://google.com?q1=\"<script>alert(1)</script>",
-				"http://google.com?q1=%22%3Cscript%3Ealert(1)%3C/script%3E", //Should escape the query string
-			],
-			[
-				"http://google.com/\"<script>alert(1)</script>/?q1",
-				"http://google.com/%22%3Cscript%3Ealert(1)%3C/script%3E/?q1",
-			],
-			[
-				"http://google.com/#\"<script>alert(1)</script>/?q1",
-				"http://google.com/#%22%3Cscript%3Ealert(1)%3C/script%3E/?q1",
-			],
+
+			// encoding
+			["http://google.com?v1=1<2", "http://google.com?v1=1%3C2"],
+			["http://google.com?1<2=v1", "http://google.com?1%3C2=v1"],
+			["http://goo>:gle.com?v1=12", ""], //Those chars at the domain level makes the url invalid, therefore the result should be empty.
+			["http://google.com/1<2/?te=12&b=", "http://google.com/1%3C2/?te=12&b="],
+
+			// without scheme
+			['google.com', 'http://google.com'],
+			['google.com#fragment', 'http://google.com#fragment'],
+			['google.com/#fragment', 'http://google.com/#fragment'],
+			['google.com?q1=v1&q2v2', 'http://google.com?q1=v1&q2v2'],
+			['google.com/?q1=v1&q2v2=#fragment', 'http://google.com/?q1=v1&q2v2=#fragment'],
+			['subdomain.google.com', 'http://subdomain.google.com'],
+			['subdomain.google.com#fragment', 'http://subdomain.google.com#fragment'],
+			['subdomain.google.com/#fragment', 'http://subdomain.google.com/#fragment'],
+			['subdomain.google.com?q1=v1&q2v2', 'http://subdomain.google.com?q1=v1&q2v2'],
+			['subdomain.google.com/?q1=v1&q2v2=#fragment', 'http://subdomain.google.com/?q1=v1&q2v2=#fragment'],
+			['subdomain.subdomain.google.com', 'http://subdomain.subdomain.google.com'],
+			['subdomain.subdomain.google.com#fragment', 'http://subdomain.subdomain.google.com#fragment'],
+			['subdomain.subdomain.google.com/#fragment', 'http://subdomain.subdomain.google.com/#fragment'],
+			['subdomain.subdomain.google.com?q1=v1&q2v2', 'http://subdomain.subdomain.google.com?q1=v1&q2v2'],
+			['subdomain.subdomain.google.com/?q1=v1&q2v2=#fragment', 'http://subdomain.subdomain.google.com/?q1=v1&q2v2=#fragment'],
+
+
+			// XSS
+
+			//Should escape the path
+			['http://example.com/"><script>alert("xss")</script>', 'http://example.com/%22%3E%3Cscript%3Ealert(%22xss%22)%3C/script%3E'],
+			["http://example.com/'><script>alert('xss')</script>", "http://example.com/%27%3E%3Cscript%3Ealert(%27xss%27)%3C/script%3E"],
+
+			//Shouldn't accept javascript scheme
+			["javascript://test%0Aalert(321)", ''],
+			["javascript://alert(1)",'' ],
+			[" javascript://alert(1)", ''],
+
+			//Should escape the query string
+			["http://google.com?q1=\"<script>alert(1)</script>", "http://google.com?q1=%22%3Cscript%3Ealert(1)%3C/script%3E"],
+			["http://google.com/\"<script>alert(1)</script>/?q1", "http://google.com/%22%3Cscript%3Ealert(1)%3C/script%3E/?q1"],
+			["http://google.com/#\"<script>alert(1)</script>/?q1", "http://google.com/#%22%3Cscript%3Ealert(1)%3C/script%3E/?q1"],
+
 		];
 	}
 
