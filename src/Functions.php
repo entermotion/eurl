@@ -1,7 +1,14 @@
 <?php
+declare(strict_types=1);
 
 namespace eURL\Functions;
 
+/**
+ * @param string $url The URL you need to escape
+ * @param string $defaultScheme Urls like google.com will fallback to the $defaultScheme, becoming http://google.com for example
+ * @param array $allowedSchemes Any URL that doesn't match these schemes will result on an empty string.
+ * @return string In most of cases it will return a valid safe for HTML URL, if the $url parameter is severely malformed this can return an empty string.
+ */
 function e(string $url, string $defaultScheme = 'http://', array $allowedSchemes = ['http', 'https']): string
 {
     $parsedUrl = parse_url(trim($url));
@@ -41,6 +48,12 @@ function e(string $url, string $defaultScheme = 'http://', array $allowedSchemes
     return build($parsedUrl, $defaultScheme);
 }
 
+/**
+ * 
+ * @param array $params
+ * @param bool $queryHasTrailingEqual
+ * @return string
+ */
 function parseQuery(array $params, bool $queryHasTrailingEqual): string
 {
     if (count($params) > 0) {
@@ -64,6 +77,11 @@ function parseQuery(array $params, bool $queryHasTrailingEqual): string
     return '';
 }
 
+/**
+ * @param array $parsedUrl
+ * @param string $defaultScheme
+ * @return string
+ */
 function build(array $url, $defaultScheme = 'http://'): string
 {
     $query    = ($url['query']     !== '') ? '?' . $url['query']    : '';
@@ -89,6 +107,10 @@ function build(array $url, $defaultScheme = 'http://'): string
     return $url['scheme'] . $result;
 }
 
+/**
+ * @param string $str
+ * @return string
+ */
 function encode(string $str): string
 {
     $replacements = array('!', '*', '(', ')', ';', '@', '&', '=', '+', '$', ',', '/', '?', '%', '#', '[', ']');
