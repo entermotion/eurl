@@ -13,3 +13,4 @@ enrollment/.sass-cache
 package-lock.json
 yarn-error.log
 yarn.lock
+/tests/_reports
