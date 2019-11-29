@@ -32,53 +32,46 @@ function e(string $url, string $defaultScheme = 'http://', array $allowedSchemes
 
     if ($parsedUrl['scheme'] !== '' && !in_array($parsedUrl['scheme'], $allowedSchemes)) return '';
 
-    $params = array();
-    $queryHasTrailingEqual = false;
-
-    if ($parsedUrl['query'] !== '') {
-
-        $queryHasTrailingEqual = substr($parsedUrl['query'], -1) === '=';
-        
-        parse_str($parsedUrl['query'], $params);
-
-    }
-    
-    $parsedUrl['query'] = parseQuery($params, $queryHasTrailingEqual);
+    $parsedUrl['query'] = encodeQueryString($parsedUrl['query']);
 
     return build($parsedUrl, $defaultScheme);
 }
 
 /**
- * 
+ *
  * @param array $params
- * @param bool $queryHasTrailingEqual
  * @return string
  */
-function parseQuery(array $params, bool $queryHasTrailingEqual): string
+function encodeQueryString(string $queryString): string
 {
-    if (count($params) > 0) {
+    if ($queryString) {
+        $queryHasTrailingEqual = substr($queryString, -1) === "=";
 
-        $query = array();
+        $params = explode("&", $queryString);
+        $result = "";
+        foreach ($params as $k => $param) {
+            if ($k > 0) {
+                $result .= "&";
+            }
+            $paramParts = explode('=', $param, 2);
+            $paramName = $paramParts[0];
+            $paramValue = (isset($paramParts[1])) ? $paramParts[1] : "";
 
-        foreach ($params as $key => $value) {
-
-            $query[] = encode($key) . '=' . encode($value);
-
+            $result .= encode($paramName) . "=" . encode($paramValue);
         }
 
-        $query = implode('&', $query);
+        if ($queryHasTrailingEqual === false) {
+            $result = rtrim($result, '=');
+        }
 
-        if ($queryHasTrailingEqual === false) $query = rtrim($query, '=');
-
-        return $query;
-
+        $queryString = $result;
     }
 
-    return '';
+    return $queryString;
 }
 
 /**
- * @param array $parsedUrl
+ * @param array $url
  * @param string $defaultScheme
  * @return string
  */
@@ -95,7 +88,7 @@ function build(array $url, $defaultScheme = 'http://'): string
         $possibleDomain = explode('/', $url['path'], 2)[0];
 
         if (preg_match('/^(([-A-z0-9]+)\.)?(([-A-z0-9]+)\.)?([-A-z0-9]+)\.([-A-z]{2,4})$/', $possibleDomain)) {
-            
+
             return $defaultScheme . $result;
 
         }
@@ -113,8 +106,7 @@ function build(array $url, $defaultScheme = 'http://'): string
  */
 function encode(string $str): string
 {
-    $replacements = array('!', '*', '(', ')', ';', '@', '&', '=', '+', '$', ',', '/', '?', '%', '#', '[', ']');
-    $entities = array_map('urlencode', $replacements);
-
-    return str_ireplace($entities, $replacements, urlencode($str));
+    $chars = array("\n", "'", "\"", "<", ">","[","]","{","}");
+    $replacements = array_map("urlencode", $chars);
+    return str_ireplace($chars, $replacements, $str);
 }
