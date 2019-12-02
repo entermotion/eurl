@@ -16,18 +16,18 @@ function e(string $url, string $defaultScheme = 'http://', array $allowedSchemes
     if ($parsedUrl === false) return '';
 
     $parsedUrlSkeleton = array(
-        'scheme'   => '',
-        'host'     => '',
-        'path'     => '',
-        'query'    => '',
+        'scheme' => '',
+        'host' => '',
+        'path' => '',
+        'query' => '',
         'fragment' => '',
     );
 
     $parsedUrl = array_merge($parsedUrlSkeleton, $parsedUrl);
 
-    $parsedUrl['scheme']   = encode($parsedUrl['scheme']);
-    $parsedUrl['host']     = encode($parsedUrl['host']);
-    $parsedUrl['path']     = encode($parsedUrl['path']);
+    $parsedUrl['scheme'] = encode($parsedUrl['scheme']);
+    $parsedUrl['host'] = encode($parsedUrl['host']);
+    $parsedUrl['path'] = encode($parsedUrl['path']);
     $parsedUrl['fragment'] = encode($parsedUrl['fragment']);
 
     if ($parsedUrl['scheme'] !== '' && !in_array($parsedUrl['scheme'], $allowedSchemes)) return '';
@@ -39,26 +39,23 @@ function e(string $url, string $defaultScheme = 'http://', array $allowedSchemes
 
 /**
  *
- * @param array $params
+ * @param string $queryString
  * @return string
  */
 function encodeQueryString(string $queryString): string
 {
-    if ($queryString) {
-        $queryHasTrailingEqual = substr($queryString, -1) === "=";
+    if ($queryString !== '') {
+        $queryHasTrailingEqual = substr($queryString, -1) === '=';
 
-        $params = explode("&", $queryString);
-        $result = "";
+        $params = explode('&', $queryString);
+        $result = [];
         foreach ($params as $k => $param) {
-            if ($k > 0) {
-                $result .= "&";
-            }
             $paramParts = explode('=', $param, 2);
             $paramName = $paramParts[0];
-            $paramValue = (isset($paramParts[1])) ? $paramParts[1] : "";
-
-            $result .= encode($paramName) . "=" . encode($paramValue);
+            $paramValue = (array_key_exists(1,$paramParts)) ? $paramParts[1] : '';
+            $result[] = encode($paramName) . '=' . encode($paramValue);
         }
+        $result = implode('&', $result);
 
         if ($queryHasTrailingEqual === false) {
             $result = rtrim($result, '=');
@@ -77,8 +74,8 @@ function encodeQueryString(string $queryString): string
  */
 function build(array $url, $defaultScheme = 'http://'): string
 {
-    $query    = ($url['query']     !== '') ? '?' . $url['query']    : '';
-    $fragment = ($url['fragment']  !== '') ? '#' . $url['fragment'] : '';
+    $query = ($url['query'] !== '') ? '?' . $url['query'] : '';
+    $fragment = ($url['fragment'] !== '') ? '#' . $url['fragment'] : '';
 
     $result = $url['host'] . $url['path'] . $query . $fragment;
 
@@ -106,7 +103,7 @@ function build(array $url, $defaultScheme = 'http://'): string
  */
 function encode(string $str): string
 {
-    $chars = array("\n", "'", "\"", "<", ">","[","]","{","}");
+    $chars = array("\n", "'", "\"", "<", ">", "[", "]", "{", "}");
     $replacements = array_map("urlencode", $chars);
     return str_ireplace($chars, $replacements, $str);
 }
