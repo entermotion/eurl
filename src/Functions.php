@@ -16,76 +16,66 @@ function e(string $url, string $defaultScheme = 'http://', array $allowedSchemes
     if ($parsedUrl === false) return '';
 
     $parsedUrlSkeleton = array(
-        'scheme'   => '',
-        'host'     => '',
-        'path'     => '',
-        'query'    => '',
+        'scheme' => '',
+        'host' => '',
+        'path' => '',
+        'query' => '',
         'fragment' => '',
     );
 
     $parsedUrl = array_merge($parsedUrlSkeleton, $parsedUrl);
 
-    $parsedUrl['scheme']   = encode($parsedUrl['scheme']);
-    $parsedUrl['host']     = encode($parsedUrl['host']);
-    $parsedUrl['path']     = encode($parsedUrl['path']);
+    $parsedUrl['scheme'] = encode($parsedUrl['scheme']);
+    $parsedUrl['host'] = encode($parsedUrl['host']);
+    $parsedUrl['path'] = encode($parsedUrl['path']);
     $parsedUrl['fragment'] = encode($parsedUrl['fragment']);
 
     if ($parsedUrl['scheme'] !== '' && !in_array($parsedUrl['scheme'], $allowedSchemes)) return '';
 
-    $params = array();
-    $queryHasTrailingEqual = false;
-
-    if ($parsedUrl['query'] !== '') {
-
-        $queryHasTrailingEqual = substr($parsedUrl['query'], -1) === '=';
-        
-        parse_str($parsedUrl['query'], $params);
-
-    }
-    
-    $parsedUrl['query'] = parseQuery($params, $queryHasTrailingEqual);
+    $parsedUrl['query'] = encodeQueryString($parsedUrl['query']);
 
     return build($parsedUrl, $defaultScheme);
 }
 
 /**
- * 
- * @param array $params
- * @param bool $queryHasTrailingEqual
+ *
+ * @param string $queryString
  * @return string
  */
-function parseQuery(array $params, bool $queryHasTrailingEqual): string
+function encodeQueryString(string $queryString): string
 {
-    if (count($params) > 0) {
+    if ($queryString !== '') {
+        $queryHasTrailingEqual = substr($queryString, -1) === '=';
 
-        $query = array();
+        $params = explode('&', $queryString);
+        $result = [];
+        foreach ($params as $k => $param) {
+            $paramParts = explode('=', $param, 2);
+            $paramName = $paramParts[0];
+            $paramValue = (array_key_exists(1,$paramParts)) ? $paramParts[1] : '';
+            $result[] = encode($paramName) . '=' . encode($paramValue);
+        }
+        $result = implode('&', $result);
 
-        foreach ($params as $key => $value) {
-
-            $query[] = encode($key) . '=' . encode($value);
-
+        if ($queryHasTrailingEqual === false) {
+            $result = rtrim($result, '=');
         }
 
-        $query = implode('&', $query);
-
-        if ($queryHasTrailingEqual === false) $query = rtrim($query, '=');
-
-        return $query;
-
+        $queryString = $result;
     }
 
-    return '';
+    return $queryString;
 }
 
 /**
- * @param array $parsedUrl
+ * @param array $url
  * @param string $defaultScheme
  * @return string
  */
 function build(array $url, $defaultScheme = 'http://'): string
 {
-    $query    = ($url['query']     !== '') ? '?' . $url['query']    : '';
-    $fragment = ($url['fragment']  !== '') ? '#' . $url['fragment'] : '';
+    $query = ($url['query'] !== '') ? '?' . $url['query'] : '';
+    $fragment = ($url['fragment'] !== '') ? '#' . $url['fragment'] : '';
 
     $result = $url['host'] . $url['path'] . $query . $fragment;
 
@@ -95,7 +85,7 @@ function build(array $url, $defaultScheme = 'http://'): string
         $possibleDomain = explode('/', $url['path'], 2)[0];
 
         if (preg_match('/^(([-A-z0-9]+)\.)?(([-A-z0-9]+)\.)?([-A-z0-9]+)\.([-A-z]{2,4})$/', $possibleDomain)) {
-            
+
             return $defaultScheme . $result;
 
         }
@@ -113,8 +103,7 @@ function build(array $url, $defaultScheme = 'http://'): string
  */
 function encode(string $str): string
 {
-    $replacements = array('!', '*', '(', ')', ';', '@', '&', '=', '+', '$', ',', '/', '?', '%', '#', '[', ']');
-    $entities = array_map('urlencode', $replacements);
-
-    return str_ireplace($entities, $replacements, urlencode($str));
+    $chars = array("\n", "'", "\"", "<", ">", "[", "]", "{", "}");
+    $replacements = array_map("urlencode", $chars);
+    return str_ireplace($chars, $replacements, $str);
 }

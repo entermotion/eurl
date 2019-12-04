@@ -55,11 +55,15 @@ final class ValidUrls extends TestCase
             ['https://www.google.com/aclk?sa=L&ai=DChcSEwjA4ZLf07HlAhXECZEKHV5YAOMYABAAGgJjZQ&sig=AOD64_33mdKrF1qaxefqngRdnf_JGHc7Cw&q=&ved=2ahUKEwijgI3f07HlAhWKIbkGHdhuDsUQ0Qx6BAgNEAE&adurl='],
             ['https://www.facebook.com/photo.php?fbid=2272467782784102&set=a.378834528814113&type=3&theater'],
             ['https://www.google.com/search?sxsrf=ACYBGNTJ6_E7vGHuXly-wapQEdX0-WR2eg%3A1571805081701&source=hp&ei=mdevXdCQKL685OUPwY-SqAs&q=t%C3%A9ste+busca+com+acento&btnK=Pesquisa+Google&oq=mail+url&gs_l=psy-ab.3..0i203l4j0i22i30l6.48741.49673..50184...0.0..0.98.570.8......0....1..gws-wiz.......35i39j0j0i67j0i10i203.wUQYlQVEwxU&ved=0ahUKEwiQwbGcxrHlAhU-HrkGHcGHBLUQ4dUDCAY&uact=5'],
+            ['https://www.google.com/search?sxsrf=ACYBGNQQyyr9xMHuMngwJFd2Yh5Ek-_OiA%3A1574423217487&source=hp&ei=scrXXcbMGpHW5OUP0a2skAI&q=test%2Ftest&btnK=Pesquisa+Google&oq=cronometro&gs_l=psy-ab.3..0i203l5j0i10i203j0i203j0j0i203j0.481.1662..1773...1.0..1.326.1078.5j3j0j1......0....1..gws-wiz.......35i39j35i39i19.Mfc7-u3RE9Y&ved=0ahUKEwiG6efE3_3lAhURK7kGHdEWCyIQ4dUDCAY&uact=5'],
         
             // double enconding
             ["http://google.com?v1=1%3C2"],
             ["http://google.com?1%3C2=v1"],
             ["http://google.com/1%3C2/?te=12&b="],
+
+            // unecessary decoding
+            ["http://domain.com/?key=test%2Ftest"],
 
             // relative
             ['/relative'],
@@ -123,8 +127,6 @@ final class ValidUrls extends TestCase
             ["/relative/1<2/?te=12&b=", "/relative/1%3C2/?te=12&b="],
             ["/relative/1<2/?te=12&b=", "/relative/1%3C2/?te=12&b="],
 
-
-            // XSS
 
             //Should escape the path
             ['http://example.com/"><script>alert("xss")</script>', 'http://example.com/%22%3E%3Cscript%3Ealert(%22xss%22)%3C/script%3E'],
