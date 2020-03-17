@@ -25,5 +25,5 @@ echo $safeATag;
 To run the tests you must install the composer dependencies and then run:
 
 ```
-vendor/bin/phpunit tests/TestUrls.php
+vendor/bin/phpunit
 ```
