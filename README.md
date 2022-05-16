@@ -27,3 +27,10 @@ To run the tests you must install the composer dependencies and then run:
 ```
 vendor/bin/phpunit tests/TestUrls.php
 ```
+
+## Running tests with Docker:
+
+* Run container: `docker-compose -f docker-compose_php81.yml run php sh`
+* Change directory: `cd /var/www/html`
+* Install dependencies: `composer install`
+* Run tests: `vendor/bin/phpunit tests/TestUrls.php`

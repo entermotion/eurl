@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use eURL\Functions as url;
 
-final class ValidUrls extends TestCase
+final class TestUrls extends TestCase
 {
     /**
      * @dataProvider validUrlProvider
@@ -47,7 +47,7 @@ final class ValidUrls extends TestCase
             ['http://google.com/?q1=v1&q2v2=#fragment'],
             ['http://google.com?q1=v1&q2v2#fragment'],
             ['http://google.com/?q1=v1&q2v2#fragment'],
-            
+
             // copy and pasted
             ['https://stackoverflow.com/questions/2681786/how-to-get-the-last-char-of-a-string-in-php'],
             ['https://www.google.com/search?sxsrf=ACYBGNTJ6_E7vGHuXly-wapQEdX0-WR2eg%3A1571805081701&source=hp&ei=mdevXdCQKL685OUPwY-SqAs&q=test&btnK=Pesquisa+Google&oq=mail+url&gs_l=psy-ab.3..0i203l4j0i22i30l6.48741.49673..50184...0.0..0.98.570.8......0....1..gws-wiz.......35i39j0j0i67j0i10i203.wUQYlQVEwxU&ved=0ahUKEwiQwbGcxrHlAhU-HrkGHcGHBLUQ4dUDCAY&uact=5'],
@@ -56,7 +56,7 @@ final class ValidUrls extends TestCase
             ['https://www.facebook.com/photo.php?fbid=2272467782784102&set=a.378834528814113&type=3&theater'],
             ['https://www.google.com/search?sxsrf=ACYBGNTJ6_E7vGHuXly-wapQEdX0-WR2eg%3A1571805081701&source=hp&ei=mdevXdCQKL685OUPwY-SqAs&q=t%C3%A9ste+busca+com+acento&btnK=Pesquisa+Google&oq=mail+url&gs_l=psy-ab.3..0i203l4j0i22i30l6.48741.49673..50184...0.0..0.98.570.8......0....1..gws-wiz.......35i39j0j0i67j0i10i203.wUQYlQVEwxU&ved=0ahUKEwiQwbGcxrHlAhU-HrkGHcGHBLUQ4dUDCAY&uact=5'],
             ['https://www.google.com/search?sxsrf=ACYBGNQQyyr9xMHuMngwJFd2Yh5Ek-_OiA%3A1574423217487&source=hp&ei=scrXXcbMGpHW5OUP0a2skAI&q=test%2Ftest&btnK=Pesquisa+Google&oq=cronometro&gs_l=psy-ab.3..0i203l5j0i10i203j0i203j0j0i203j0.481.1662..1773...1.0..1.326.1078.5j3j0j1......0....1..gws-wiz.......35i39j35i39i19.Mfc7-u3RE9Y&ved=0ahUKEwiG6efE3_3lAhURK7kGHdEWCyIQ4dUDCAY&uact=5'],
-        
+
             // double enconding
             ["http://google.com?v1=1%3C2"],
             ["http://google.com?1%3C2=v1"],
@@ -86,7 +86,7 @@ final class ValidUrls extends TestCase
             ['relative/#fragment'],
             ['relative?q1=v1&q2v2'],
             ['relative?q1=v1&q2v2='],
-            
+
         ];
     }
 
